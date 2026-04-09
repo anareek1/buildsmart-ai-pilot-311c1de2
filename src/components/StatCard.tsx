@@ -19,8 +19,8 @@ export default function StatCard({ title, value, change, changeType = "neutral",
     <div className="stat-card">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-2xl font-semibold mt-1">{value}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">{title}</p>
+          <p className="text-xl sm:text-2xl font-semibold mt-1">{value}</p>
           {change && (
             <p className={`text-xs mt-1 ${changeColors[changeType]}`}>{change}</p>
           )}

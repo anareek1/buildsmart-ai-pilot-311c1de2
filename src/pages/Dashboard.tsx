@@ -48,18 +48,18 @@ export default function Dashboard() {
                 onClick={() => navigate(m.path)}
                 className="module-card group"
               >
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <m.icon size={24} />
+                <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 text-primary mb-3 sm:mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <m.icon size={20} />
                 </div>
-                <h3 className="font-medium text-sm">{m.label}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{m.desc}</p>
+                <h3 className="font-medium text-xs sm:text-sm">{m.label}</h3>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">{m.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-card rounded-xl border p-6">
+        <div className="bg-card rounded-xl border p-4 sm:p-6">
           <h2 className="text-lg font-semibold mb-4">Последние события</h2>
           <div className="space-y-3">
             {[

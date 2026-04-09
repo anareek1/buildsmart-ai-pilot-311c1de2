@@ -129,7 +129,7 @@
   }
 
   .module-card {
-    @apply bg-card rounded-xl border p-6 transition-all duration-300 cursor-pointer;
+    @apply bg-card rounded-xl border p-4 sm:p-6 transition-all duration-300 cursor-pointer;
   }
   .module-card:hover {
     @apply shadow-lg -translate-y-1;
