@@ -23,15 +23,15 @@ export default function Dashboard() {
   return (
     <div className="animate-fade-in">
       {/* Header */}
-      <div className="bg-card border-b px-8 py-8">
+      <div className="bg-card border-b px-4 py-5 sm:px-8 sm:py-8">
         <p className="text-xs font-display text-primary tracking-widest uppercase mb-1">Панель управления</p>
-        <h1 className="text-2xl font-semibold">ТОО «СК-Казалем»</h1>
-        <p className="text-sm text-muted-foreground mt-1">Строительно-дорожная компания • ИИ-автоматизация от BTC Engineering</p>
+        <h1 className="text-xl sm:text-2xl font-semibold">ТОО «СК-Казалем»</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">Строительно-дорожная компания • ИИ-автоматизация от BTC Engineering</p>
       </div>
 
-      <div className="p-8 space-y-8">
+      <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <StatCard title="Активные объекты" value="4" change="+1 за месяц" changeType="positive" icon={<Building2 size={22} />} />
           <StatCard title="Выполнение плана" value="78%" change="Опережение на 3 дня" changeType="positive" icon={<TrendingUp size={22} />} />
           <StatCard title="Открытые инциденты" value="7" change="2 критических" changeType="negative" icon={<AlertTriangle size={22} />} />
@@ -41,7 +41,7 @@ export default function Dashboard() {
         {/* Modules Grid */}
         <div>
           <h2 className="text-lg font-semibold mb-4">Модули системы</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {modules.map((m) => (
               <div
                 key={m.path}
