@@ -64,8 +64,8 @@ export default function Tenders() {
         icon={<Search size={22} />}
       />
 
-      <div className="p-8 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <StatCard title="Найдено за неделю" value="12" change="4 подходящих" changeType="positive" icon={<Radar size={20} />} />
           <StatCard title="В работе" value="2" icon={<Zap size={20} />} />
           <StatCard title="Подано за месяц" value="5" change="2 победы" changeType="positive" icon={<Shield size={20} />} />
@@ -73,12 +73,12 @@ export default function Tenders() {
         </div>
 
         {/* Filter */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-1">
           {["all", "Новый", "В работе", "Подано"].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm transition-colors whitespace-nowrap flex-shrink-0 ${
                 filter === f
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -94,19 +94,19 @@ export default function Tenders() {
           {tenders
             .filter((t) => filter === "all" || t.status === filter)
             .map((tender, i) => (
-              <div key={i} className="bg-card rounded-xl border p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+              <div key={i} className="bg-card rounded-xl border p-4 md:p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${statusStyles[tender.status] || ""}`}>
                         {tender.status}
                       </span>
                       <span className="text-xs text-muted-foreground">{tender.source}</span>
                     </div>
-                    <h3 className="font-medium">{tender.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-0.5">{tender.customer}</p>
+                    <h3 className="font-medium text-sm md:text-base">{tender.title}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground mt-0.5">{tender.customer}</p>
                   </div>
-                  <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10">
+                  <div className="flex items-center gap-1 px-2 md:px-3 py-1.5 rounded-lg bg-primary/10 flex-shrink-0">
                     <Star size={14} className="text-primary" />
                     <span className="text-sm font-semibold text-primary">{tender.match}%</span>
                   </div>

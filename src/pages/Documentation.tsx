@@ -27,9 +27,9 @@ export default function Documentation() {
         icon={<FileText size={22} />}
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-4 md:space-y-6">
         {/* AI Search */}
-        <div className="bg-card rounded-xl border p-6">
+        <div className="bg-card rounded-xl border p-4 md:p-6">
           <h2 className="font-semibold mb-4">Интеллектуальный поиск и генерация</h2>
           <div className="bg-muted rounded-lg p-4 mb-4 min-h-[160px] text-sm">
             <p className="text-muted-foreground mb-2">💡 Примеры запросов:</p>
@@ -54,9 +54,9 @@ export default function Documentation() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Recent Documents */}
-          <div className="bg-card rounded-xl border p-6">
+          <div className="bg-card rounded-xl border p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
               <FolderOpen size={18} className="text-primary" />
               <h2 className="font-semibold">Последние документы</h2>
@@ -75,7 +75,7 @@ export default function Documentation() {
           </div>
 
           {/* Normative Base */}
-          <div className="bg-card rounded-xl border p-6">
+          <div className="bg-card rounded-xl border p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen size={18} className="text-primary" />
               <h2 className="font-semibold">Нормативная база</h2>

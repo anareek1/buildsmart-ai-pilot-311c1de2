@@ -19,8 +19,8 @@ export default function Subcontractors() {
         icon={<Users size={22} />}
       />
 
-      <div className="p-8 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <StatCard title="Субподрядчики" value="5" icon={<Users size={20} />} />
           <StatCard title="Общая сумма договоров" value="64 млн ₸" icon={<Banknote size={20} />} />
           <StatCard title="Среднее выполнение" value="51%" icon={<CheckCircle size={20} />} />
@@ -28,20 +28,20 @@ export default function Subcontractors() {
         </div>
 
         <div className="bg-card rounded-xl border overflow-hidden">
-          <div className="p-6 border-b">
+          <div className="p-4 md:p-6 border-b">
             <h2 className="font-semibold">Реестр субподрядчиков</h2>
           </div>
           <div className="divide-y">
             {subs.map((sub, i) => (
-              <div key={i} className="p-5 hover:bg-muted/30 transition-colors">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
+              <div key={i} className="p-4 md:p-5 hover:bg-muted/30 transition-colors">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="min-w-0">
                     <h3 className="font-medium text-sm">{sub.name}</h3>
                     <p className="text-xs text-muted-foreground">{sub.works}</p>
                   </div>
-                  <span className="text-sm font-medium">{sub.contract}</span>
+                  <span className="text-xs md:text-sm font-medium whitespace-nowrap flex-shrink-0">{sub.contract}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                   <div>
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-muted-foreground">Выполнение</span>

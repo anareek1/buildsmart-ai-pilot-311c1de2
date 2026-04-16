@@ -29,18 +29,18 @@ export default function PTOAssistant() {
         icon={<HardHat size={22} />}
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-4 md:space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <StatCard title="Документов в работе" value="12" icon={<FileSpreadsheet size={20} />} />
           <StatCard title="ИД готовность" value="67%" change="Осталось 14 документов" changeType="neutral" icon={<ClipboardCheck size={20} />} />
           <StatCard title="Отклонение М-29" value="8%" change="В пределах нормы" changeType="positive" icon={<BookOpen size={20} />} />
           <StatCard title="Отставание графика" value="2 дня" change="Секция 3, кладка" changeType="negative" icon={<CalendarCheck size={20} />} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* AI Chat */}
-          <div className="bg-card rounded-xl border p-6">
+          <div className="bg-card rounded-xl border p-4 md:p-6">
             <h2 className="font-semibold mb-4">ИИ-помощник ПТО</h2>
             <div className="bg-muted rounded-lg p-4 mb-4 min-h-[200px] text-sm text-muted-foreground">
               <p className="mb-3">👋 Здравствуйте! Я ваш ИИ-ассистент ПТО. Могу помочь с:</p>
@@ -66,11 +66,11 @@ export default function PTOAssistant() {
           </div>
 
           {/* Documents */}
-          <div className="bg-card rounded-xl border p-6">
+          <div className="bg-card rounded-xl border p-4 md:p-6">
             <h2 className="font-semibold mb-4">Документы в работе</h2>
             <div className="space-y-3">
               {documents.map((doc, i) => (
-                <div key={i} className="flex items-center justify-between py-2.5 border-b last:border-0">
+                <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 py-2.5 border-b last:border-0">
                   <span className="text-sm">{doc.name}</span>
                   <span className={`text-xs font-medium ${doc.statusColor}`}>{doc.status}</span>
                 </div>
@@ -80,7 +80,7 @@ export default function PTOAssistant() {
         </div>
 
         {/* ID Checklist */}
-        <div className="bg-card rounded-xl border p-6">
+        <div className="bg-card rounded-xl border p-4 md:p-6">
           <h2 className="font-semibold mb-4">Чек-лист ИД — Фундамент, ЖК «Астана»</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {checklistItems.map((item, i) => (
