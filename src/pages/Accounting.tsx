@@ -43,23 +43,23 @@ export default function Accounting() {
         icon={<Calculator size={22} />}
       />
 
-      <div className="p-8 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <StatCard title="Доходы (апрель)" value="12.8 млн ₸" change="-64% к марту" changeType="neutral" icon={<TrendingUp size={20} />} />
           <StatCard title="Расходы (апрель)" value="11.5 млн ₸" icon={<TrendingDown size={20} />} />
           <StatCard title="Прибыль (апрель)" value="1.3 млн ₸" change="Маржа 10.2%" changeType="positive" icon={<Receipt size={20} />} />
           <StatCard title="Налоги к уплате" value="5.68 млн ₸" change="Дедлайн 25.04" changeType="negative" icon={<Percent size={20} />} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Cash Flow */}
-          <div className="bg-card rounded-xl border p-6">
-            <h2 className="font-semibold mb-4">Денежный поток (тыс. ₸)</h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={monthlyFlow} barGap={4}>
+          <div className="bg-card rounded-xl border p-4 md:p-6">
+            <h2 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Денежный поток (тыс. ₸)</h2>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={monthlyFlow} barGap={4} margin={{ left: -10, right: 5, top: 5, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v / 1000}`} />
+                <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v / 1000}`} />
                 <Tooltip formatter={(v: number) => `${(v / 1000).toFixed(1)} млн ₸`} />
                 <Bar dataKey="income" name="Доходы" fill="hsl(142, 60%, 40%)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="expense" name="Расходы" fill="hsl(22, 90%, 52%)" radius={[4, 4, 0, 0]} />
@@ -68,12 +68,12 @@ export default function Accounting() {
           </div>
 
           {/* Expense Breakdown */}
-          <div className="bg-card rounded-xl border p-6">
-            <h2 className="font-semibold mb-4">Структура расходов (март)</h2>
-            <div className="flex items-center">
-              <ResponsiveContainer width="50%" height={200}>
+          <div className="bg-card rounded-xl border p-4 md:p-6">
+            <h2 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Структура расходов (март)</h2>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <ResponsiveContainer width="100%" height={180} className="sm:!w-1/2">
                 <PieChart>
-                  <Pie data={expenseCategories} dataKey="value" cx="50%" cy="50%" outerRadius={80} innerRadius={40}>
+                  <Pie data={expenseCategories} dataKey="value" cx="50%" cy="50%" outerRadius={70} innerRadius={35}>
                     {expenseCategories.map((entry, i) => (
                       <Cell key={i} fill={entry.color} />
                     ))}
@@ -81,10 +81,10 @@ export default function Accounting() {
                   <Tooltip formatter={(v: number) => `${(v / 1000).toFixed(1)} млн ₸`} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="space-y-2">
+              <div className="space-y-2 w-full sm:w-1/2">
                 {expenseCategories.map((cat, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
+                    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
                     <span>{cat.name}</span>
                     <span className="text-muted-foreground ml-auto">{(cat.value / 1000).toFixed(1)} млн</span>
                   </div>
@@ -94,10 +94,10 @@ export default function Accounting() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Recent Transactions */}
-          <div className="bg-card rounded-xl border p-6">
-            <h2 className="font-semibold mb-4">Последние операции</h2>
+          <div className="bg-card rounded-xl border p-4 md:p-6">
+            <h2 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Последние операции</h2>
             <div className="space-y-2">
               {recentTransactions.map((tx, i) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
@@ -117,8 +117,8 @@ export default function Accounting() {
           </div>
 
           {/* Tax Calendar */}
-          <div className="bg-card rounded-xl border p-6">
-            <h2 className="font-semibold mb-4">Налоговый календарь — Апрель 2026</h2>
+          <div className="bg-card rounded-xl border p-4 md:p-6">
+            <h2 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Налоговый календарь — Апрель 2026</h2>
             <div className="space-y-3">
               {taxes.map((tax, i) => (
                 <div key={i} className="flex items-center justify-between p-3 rounded-lg border">
