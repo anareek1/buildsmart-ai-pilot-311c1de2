@@ -7,14 +7,14 @@ import {
 import StatCard from "@/components/StatCard";
 
 const modules = [
-  { path: "/pto", icon: HardHat, label: "ИИ-ассистент ПТО", desc: "КС-2, М-29, журналы, графики" },
-  { path: "/digital-construction", icon: Building2, label: "Цифровая стройка", desc: "Учёт материалов, объёмов, ИД" },
-  { path: "/acts", icon: FileCheck, label: "Автоматизация актов", desc: "КС-2, КС-3, М-29, АОСР" },
-  { path: "/subcontractors", icon: Users, label: "Субподрядчики", desc: "Контроль выполнения и оплат" },
-  { path: "/documentation", icon: FileText, label: "ИИ-документация", desc: "Поиск, генерация, шаблоны" },
-  { path: "/analytics", icon: BarChart3, label: "Аналитика", desc: "Сводки, прогресс, бюджет" },
-  { path: "/accounting", icon: Calculator, label: "ИИ-бухгалтер", desc: "Приходы, расходы, налоги" },
-  { path: "/tenders", icon: Search, label: "Поиск тендеров", desc: "Мониторинг, фильтрация, подача" },
+  { path: "/app/pto", icon: HardHat, label: "ИИ-ассистент ПТО", desc: "КС-2, М-29, журналы, графики" },
+  { path: "/app/digital-construction", icon: Building2, label: "Цифровая стройка", desc: "Учёт материалов, объёмов, ИД" },
+  { path: "/app/acts", icon: FileCheck, label: "Автоматизация актов", desc: "КС-2, КС-3, М-29, АОСР" },
+  { path: "/app/subcontractors", icon: Users, label: "Субподрядчики", desc: "Контроль выполнения и оплат" },
+  { path: "/app/documentation", icon: FileText, label: "ИИ-документация", desc: "Поиск, генерация, шаблоны" },
+  { path: "/app/analytics", icon: BarChart3, label: "Аналитика", desc: "Сводки, прогресс, бюджет" },
+  { path: "/app/accounting", icon: Calculator, label: "ИИ-бухгалтер", desc: "Приходы, расходы, налоги" },
+  { path: "/app/tenders", icon: Search, label: "Поиск тендеров", desc: "Мониторинг, фильтрация, подача" },
 ];
 
 export default function Dashboard() {
@@ -24,9 +24,9 @@ export default function Dashboard() {
     <div className="animate-fade-in">
       {/* Header */}
       <div className="bg-card border-b px-4 py-5 sm:px-8 sm:py-8">
-        <p className="text-xs font-display text-primary tracking-widest uppercase mb-1">Панель управления</p>
-        <h1 className="text-xl sm:text-2xl font-semibold">ТОО «СК-Казалем»</h1>
-        <p className="text-xs sm:text-sm text-muted-foreground mt-1">Строительно-дорожная компания • ИИ-автоматизация от BTC Engineering</p>
+        <p className="text-[10px] text-primary tracking-[0.25em] uppercase mb-2" style={{ fontFamily: "var(--font-mono)" }}>§ 01 — ПАНЕЛЬ УПРАВЛЕНИЯ</p>
+        <h1 className="text-2xl sm:text-4xl uppercase" style={{ fontFamily: "var(--font-oswald)", fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 0.95 }}>ТОО «СК-Казалем»</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-2">Строительно-дорожная компания · ИИ-автоматизация управления стройкой</p>
       </div>
 
       <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">

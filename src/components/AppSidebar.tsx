@@ -5,6 +5,7 @@ import {
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
+import { SKLogoMark, SKWordmark } from "./SKLogo";
 
 const modules = [
   { path: "/app", icon: LayoutDashboard, label: "Главная", end: true },
@@ -37,12 +38,14 @@ export default function AppSidebar({ onNavigate, forceMobile }: Props) {
     >
       {/* Logo — hidden in mobile sheet (header already shows it) */}
       {!forceMobile && (
-        <div className="flex items-center gap-2 px-4 h-16 border-b" style={{ borderColor: "hsl(var(--sidebar-border))" }}>
-          <span className="font-display text-lg font-bold text-primary">BTC</span>
-          {showFull && (
-            <span className="font-display text-sm text-sidebar-fg tracking-wider">Engineering</span>
-          )}
-        </div>
+        <NavLink
+          to="/"
+          className="flex items-center px-4 h-16 border-b hover:opacity-80 transition-opacity"
+          style={{ borderColor: "hsl(var(--sidebar-border))" }}
+          title="На главную"
+        >
+          {showFull ? <SKWordmark size="sm" /> : <SKLogoMark className="h-7 w-7" />}
+        </NavLink>
       )}
 
       {/* Client Badge */}
