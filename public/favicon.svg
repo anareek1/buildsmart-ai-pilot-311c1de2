@@ -1,4 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#F36716"/>
-  <text x="32" y="43" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-weight="700" font-size="28" text-anchor="middle" fill="#ffffff">СК</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" fill="#1A1512"/>
+  <g stroke="#C8823C" stroke-width="1.2" opacity="0.4" fill="none">
+    <circle cx="60" cy="60" r="44"/>
+    <ellipse cx="60" cy="60" rx="44" ry="18"/>
+    <ellipse cx="60" cy="60" rx="18" ry="44"/>
+    <line x1="16" y1="60" x2="104" y2="60"/>
+  </g>
+  <line x1="60" y1="32" x2="60" y2="88" stroke="#C8823C" stroke-width="1.5" opacity="0.55"/>
+  <g fill="#C8823C">
+    <rect x="22" y="34" width="20" height="6"/>
+    <rect x="22" y="34" width="6" height="16"/>
+    <rect x="22" y="57" width="20" height="6"/>
+    <rect x="36" y="57" width="6" height="23"/>
+    <rect x="22" y="74" width="20" height="6"/>
+  </g>
+  <g fill="#C8823C">
+    <rect x="72" y="34" width="6" height="46"/>
+    <polygon points="78,55 93,34 100,34 85,55"/>
+    <polygon points="78,59 93,80 100,80 85,59"/>
+  </g>
 </svg>

@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppLayout from "@/components/AppLayout";
+import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
 import PTOAssistant from "@/pages/PTOAssistant";
 import DigitalConstruction from "@/pages/DigitalConstruction";
@@ -24,16 +25,17 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/pto" element={<PTOAssistant />} />
-            <Route path="/digital-construction" element={<DigitalConstruction />} />
-            <Route path="/acts" element={<ActsAutomation />} />
-            <Route path="/subcontractors" element={<Subcontractors />} />
-            <Route path="/documentation" element={<Documentation />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/accounting" element={<Accounting />} />
-            <Route path="/tenders" element={<Tenders />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/app" element={<AppLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="pto" element={<PTOAssistant />} />
+            <Route path="digital-construction" element={<DigitalConstruction />} />
+            <Route path="acts" element={<ActsAutomation />} />
+            <Route path="subcontractors" element={<Subcontractors />} />
+            <Route path="documentation" element={<Documentation />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="accounting" element={<Accounting />} />
+            <Route path="tenders" element={<Tenders />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

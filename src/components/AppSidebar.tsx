@@ -7,15 +7,15 @@ import {
 import { useState } from "react";
 
 const modules = [
-  { path: "/", icon: LayoutDashboard, label: "Главная" },
-  { path: "/pto", icon: HardHat, label: "ИИ-ассистент ПТО" },
-  { path: "/digital-construction", icon: Building2, label: "Цифровая стройка" },
-  { path: "/acts", icon: FileCheck, label: "Автоматизация актов" },
-  { path: "/subcontractors", icon: Users, label: "Субподрядчики" },
-  { path: "/documentation", icon: FileText, label: "ИИ-документация" },
-  { path: "/analytics", icon: BarChart3, label: "Аналитика" },
-  { path: "/accounting", icon: Calculator, label: "ИИ-бухгалтер" },
-  { path: "/tenders", icon: Search, label: "Поиск тендеров" },
+  { path: "/app", icon: LayoutDashboard, label: "Главная", end: true },
+  { path: "/app/pto", icon: HardHat, label: "ИИ-ассистент ПТО" },
+  { path: "/app/digital-construction", icon: Building2, label: "Цифровая стройка" },
+  { path: "/app/acts", icon: FileCheck, label: "Автоматизация актов" },
+  { path: "/app/subcontractors", icon: Users, label: "Субподрядчики" },
+  { path: "/app/documentation", icon: FileText, label: "ИИ-документация" },
+  { path: "/app/analytics", icon: BarChart3, label: "Аналитика" },
+  { path: "/app/accounting", icon: Calculator, label: "ИИ-бухгалтер" },
+  { path: "/app/tenders", icon: Search, label: "Поиск тендеров" },
 ];
 
 interface Props {
