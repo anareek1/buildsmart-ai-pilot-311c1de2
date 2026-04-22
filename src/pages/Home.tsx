@@ -226,23 +226,42 @@ export default function Home() {
             </a>
           ))}
         </nav>
-        <a
-          href="#contact"
-          className="px-5 py-3 whitespace-nowrap transition-colors duration-200"
-          style={{
-            background: ochre,
-            color: deep,
-            fontFamily: "var(--font-oswald)",
-            fontSize: 13,
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-          }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = bone)}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = ochre)}
-        >
-          Запросить смету →
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/app"
+            className="px-5 py-3 whitespace-nowrap transition-colors duration-200"
+            style={{
+              border: `1px solid ${ochre}`,
+              color: ochre,
+              fontFamily: "var(--font-oswald)",
+              fontSize: 13,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = ochre; (e.currentTarget as HTMLElement).style.color = deep; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = ochre; }}
+          >
+            Войти в систему
+          </a>
+          <a
+            href="#contact"
+            className="px-5 py-3 whitespace-nowrap transition-colors duration-200"
+            style={{
+              background: ochre,
+              color: deep,
+              fontFamily: "var(--font-oswald)",
+              fontSize: 13,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = bone)}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = ochre)}
+          >
+            Запросить смету →
+          </a>
+        </div>
       </div>
 
       {/* HERO */}
