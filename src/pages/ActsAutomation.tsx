@@ -87,8 +87,15 @@ export default function ActsAutomation() {
         </div>
 
         <div className="bg-card rounded-xl border overflow-hidden">
-          <div className="p-4 md:p-6 border-b">
+          <div className="p-4 md:p-6 border-b flex items-center justify-between">
             <h2 className="font-semibold">Реестр актов</h2>
+            <button
+              type="button"
+              onClick={() => api.download("/acts/export").catch((e) => alert(`Ошибка экспорта: ${e.message}`))}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border hover:bg-muted transition"
+            >
+              <FileSpreadsheet size={14} /> Выгрузить в Excel
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
