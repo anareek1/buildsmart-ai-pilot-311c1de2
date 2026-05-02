@@ -74,8 +74,11 @@ export default function GenerateKS2Dialog({ projectId, projectName }: Props) {
   const filledCount = Object.values(doneQty).filter((v) => parseFloat(v) > 0).length;
 
   const create = useMutation({
-    mutationFn: () =>
-      api.post<Act>("/acts", {
+    mutationFn: () => {
+      const items = Object.entries(doneQty)
+        .map(([estimateItemId, raw]) => ({ estimateItemId, quantity: parseFloat(raw) || 0 }))
+        .filter((i) => i.quantity > 0);
+      return api.post<Act>("/acts", {
         projectId,
         type: "KS2",
         name: `Акт КС-2 №${number || suggestedNumber}`,
@@ -83,7 +86,9 @@ export default function GenerateKS2Dialog({ projectId, projectName }: Props) {
         amount: totalAmount,
         date,
         status: "DRAFT",
-      }),
+        items,
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["acts"] });
       setOpen(false);

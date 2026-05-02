@@ -1,4 +1,4 @@
-import { FileCheck, FileSpreadsheet, Download, Eye, Wallet } from "lucide-react";
+import { FileCheck, FileSpreadsheet, Download, Eye, Wallet, Package } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
@@ -143,18 +143,34 @@ export default function ActsAutomation() {
                           </select>
                         </td>
                         <td className="px-4 md:px-6 py-3 text-center">
-                          <button
-                            type="button"
-                            title="Скачать КС-3 (XLSX)"
-                            onClick={() =>
-                              api
-                                .download(`/acts/${act.id}/export`)
-                                .catch((e) => alert(`Ошибка экспорта: ${e.message}`))
-                            }
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            <Download size={16} />
-                          </button>
+                          <div className="inline-flex items-center gap-2">
+                            <button
+                              type="button"
+                              title="Скачать КС-3 (XLSX)"
+                              onClick={() =>
+                                api
+                                  .download(`/acts/${act.id}/export`)
+                                  .catch((e) => alert(`Ошибка экспорта: ${e.message}`))
+                              }
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              <Download size={16} />
+                            </button>
+                            {act.type === "KS2" && (
+                              <button
+                                type="button"
+                                title="Скачать М-29 (расход материалов)"
+                                onClick={() =>
+                                  api
+                                    .download(`/acts/${act.id}/m29/export`)
+                                    .catch((e) => alert(`Ошибка экспорта: ${e.message}`))
+                                }
+                                className="text-muted-foreground hover:text-primary transition-colors"
+                              >
+                                <Package size={16} />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
