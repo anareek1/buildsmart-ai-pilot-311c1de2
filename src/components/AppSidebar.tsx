@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   HardHat, Building2, FileCheck, Users, FileText,
-  BarChart3, Calculator, Search, LayoutDashboard,
+  BarChart3, Calculator, Search, LayoutDashboard, Package,
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
@@ -11,6 +11,7 @@ const modules = [
   { path: "/app", icon: LayoutDashboard, label: "Главная", end: true },
   { path: "/app/pto", icon: HardHat, label: "ИИ-ассистент ПТО" },
   { path: "/app/digital-construction", icon: Building2, label: "Цифровая стройка" },
+  { path: "/app/materials", icon: Package, label: "Материалы и склад" },
   { path: "/app/acts", icon: FileCheck, label: "Автоматизация актов" },
   { path: "/app/subcontractors", icon: Users, label: "Субподрядчики" },
   { path: "/app/documentation", icon: FileText, label: "ИИ-документация" },

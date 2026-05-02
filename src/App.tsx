@@ -9,6 +9,7 @@ import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import PTOAssistant from "@/pages/PTOAssistant";
 import DigitalConstruction from "@/pages/DigitalConstruction";
+import Materials from "@/pages/Materials";
 import ActsAutomation from "@/pages/ActsAutomation";
 import Subcontractors from "@/pages/Subcontractors";
 import Documentation from "@/pages/Documentation";
@@ -54,6 +55,7 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="pto" element={<PTOAssistant />} />
             <Route path="digital-construction" element={<DigitalConstruction />} />
+            <Route path="materials" element={<Materials />} />
             <Route path="acts" element={<ActsAutomation />} />
             <Route path="subcontractors" element={<Subcontractors />} />
             <Route path="documentation" element={<Documentation />} />
