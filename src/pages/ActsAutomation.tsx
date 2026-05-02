@@ -143,7 +143,16 @@ export default function ActsAutomation() {
                           </select>
                         </td>
                         <td className="px-4 md:px-6 py-3 text-center">
-                          <button className="text-muted-foreground hover:text-primary transition-colors">
+                          <button
+                            type="button"
+                            title="Скачать КС-3 (XLSX)"
+                            onClick={() =>
+                              api
+                                .download(`/acts/${act.id}/export`)
+                                .catch((e) => alert(`Ошибка экспорта: ${e.message}`))
+                            }
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                          >
                             <Download size={16} />
                           </button>
                         </td>
