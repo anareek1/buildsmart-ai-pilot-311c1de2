@@ -2,7 +2,7 @@ import { BarChart3, TrendingUp, Clock, Banknote } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from "recharts";
 import { api } from "@/lib/api";
 
 interface AnalyticsSummary {
@@ -15,6 +15,24 @@ interface AnalyticsSummary {
   monthlyTrend: { month: string; revenue: number; expenses: number }[];
 }
 
+interface CostsAnalytics {
+  totalPaid: number;
+  totalDebt: number;
+  totalEntries: number;
+  byProject: { name: string; value: number }[];
+  byCategory: { name: string; value: number }[];
+}
+
+const CATEGORY_COLORS = [
+  "hsl(22, 90%, 52%)",
+  "hsl(199, 89%, 48%)",
+  "hsl(142, 71%, 45%)",
+  "hsl(280, 65%, 55%)",
+  "hsl(45, 93%, 50%)",
+  "hsl(0, 72%, 51%)",
+  "hsl(220, 14%, 50%)",
+];
+
 function fmt(n: number) {
   return `${(n / 1_000_000).toFixed(1)} млн ₸`;
 }
@@ -23,6 +41,10 @@ export default function Analytics() {
   const { data, isLoading } = useQuery<AnalyticsSummary>({
     queryKey: ["analytics"],
     queryFn: () => api.get("/analytics/summary"),
+  });
+  const { data: costs } = useQuery<CostsAnalytics>({
+    queryKey: ["analytics-costs"],
+    queryFn: () => api.get("/analytics/costs"),
   });
 
   return (
@@ -80,6 +102,59 @@ export default function Analytics() {
             )}
           </div>
         </div>
+
+        {/* Cost structure */}
+        {costs && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            <div className="bg-card rounded-xl border p-4 md:p-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-semibold text-sm md:text-base">Структура затрат по категориям</h2>
+                <span className="text-xs text-muted-foreground">
+                  Всего оплачено: <span className="font-medium text-foreground">{fmt(costs.totalPaid)}</span>
+                </span>
+              </div>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={costs.byCategory}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label={(entry: { value: number }) => fmt(entry.value)}
+                  >
+                    {costs.byCategory.map((_, idx) => (
+                      <Cell key={idx} fill={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(v: number) => fmt(v)} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-card rounded-xl border p-4 md:p-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-semibold text-sm md:text-base">Затраты по объектам</h2>
+                {costs.totalDebt > 0 && (
+                  <span className="text-xs text-destructive">
+                    Долг: {fmt(costs.totalDebt)}
+                  </span>
+                )}
+              </div>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={costs.byProject} layout="vertical" margin={{ left: 60, right: 5, top: 5, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}M`} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={90} />
+                  <Tooltip formatter={(v: number) => fmt(v)} />
+                  <Bar dataKey="value" fill="hsl(22, 90%, 52%)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
         {/* Weekly summary */}
         <div className="bg-card rounded-xl border p-4 md:p-6">
