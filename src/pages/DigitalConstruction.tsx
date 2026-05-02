@@ -1,99 +1,108 @@
-import { Building2, Package, TrendingDown, Layers, AlertTriangle, Plus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Building2, MapPin, User, Calendar } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
+import { api } from "@/lib/api";
 
-const materials = [
-  { name: "Бетон М300", stock: "48 м³", norm: "На 3 дня", status: "ok" },
-  { name: "Арматура Ø12", stock: "2.4 т", norm: "На 5 дней", status: "ok" },
-  { name: "Трубы ПЭ-100 Ø315", stock: "120 п.м.", norm: "На 1 день", status: "low" },
-  { name: "Кирпич М150", stock: "8 000 шт", norm: "На 4 дня", status: "ok" },
-  { name: "ЩПС фр. 0-40", stock: "85 м³", norm: "На 2 дня", status: "warning" },
-];
+interface Project {
+  id: string;
+  name: string;
+  type: string;
+  address: string | null;
+  customer: string | null;
+  endDate: string | null;
+  status: "ACTIVE" | "COMPLETED" | "SUSPENDED";
+  progressFact: number;
+  progressPlan: number;
+}
 
-const dailyWorks = [
-  { object: "ЖК «Астана»", work: "Кладка 3 этаж, секция 2", volume: "45 м²" },
-  { object: "Водопровод ПК-12", work: "Прокладка трубы Ø315", volume: "250 п.м." },
-  { object: "Дорога А-351", work: "Укладка ЩПС", volume: "3 000 м²" },
-];
+const statusLabel: Record<Project["status"], string> = {
+  ACTIVE: "В работе",
+  COMPLETED: "Завершён",
+  SUSPENDED: "Приостановлен",
+};
 
-const incidents = [
-  { desc: "Перерасход труб ПЭ-100 на 18%", category: "Снабжение", severity: "high" },
-  { desc: "Трещина в стене, секция 1, 2 этаж", category: "Качество", severity: "high" },
-  { desc: "Задержка поставки арматуры", category: "Снабжение", severity: "medium" },
-];
+const statusClass: Record<Project["status"], string> = {
+  ACTIVE: "bg-primary/10 text-primary",
+  COMPLETED: "bg-success/10 text-success",
+  SUSPENDED: "bg-warning/10 text-warning",
+};
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
 
 export default function DigitalConstruction() {
+  const { data: projects, isLoading, error } = useQuery<Project[]>({
+    queryKey: ["projects"],
+    queryFn: () => api.get<Project[]>("/projects"),
+  });
+
+  const active = projects?.filter((p) => p.status === "ACTIVE").length ?? 0;
+  const total = projects?.length ?? 0;
+
   return (
     <div className="animate-fade-in">
       <PageHeader
         title="Цифровая стройка"
-        description="Операционное управление объектами — материалы, объёмы, ИД, инциденты"
+        description="Операционное управление объектами"
         icon={<Building2 size={22} />}
       />
 
       <div className="p-8 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard title="Активные объекты" value="4" icon={<Building2 size={20} />} />
-          <StatCard title="Позиции материалов" value="47" change="3 с низким остатком" changeType="negative" icon={<Package size={20} />} />
-          <StatCard title="Отклонение расхода" value="8%" change="В пределах допуска" changeType="positive" icon={<TrendingDown size={20} />} />
-          <StatCard title="Инциденты (откр.)" value="3" change="2 критических" changeType="negative" icon={<AlertTriangle size={20} />} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCard title="Активные объекты" value={String(active)} icon={<Building2 size={20} />} />
+          <StatCard title="Всего объектов" value={String(total)} icon={<Building2 size={20} />} />
+          <StatCard title="Заказчик" value="ГУ ВКО" change="Управление автодорог" icon={<User size={20} />} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Materials */}
-          <div className="bg-card rounded-xl border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold">Остатки материалов</h2>
-              <button className="flex items-center gap-1 text-xs text-primary hover:underline">
-                <Plus size={14} /> Приход
-              </button>
-            </div>
-            <div className="space-y-2">
-              {materials.map((m, i) => (
-                <div key={i} className={`flex items-center justify-between p-3 rounded-lg border ${m.status === "low" ? "border-destructive/40 bg-destructive/5" : m.status === "warning" ? "border-warning/40 bg-warning/5" : ""}`}>
-                  <div>
-                    <p className="text-sm font-medium">{m.name}</p>
-                    <p className="text-xs text-muted-foreground">{m.norm}</p>
-                  </div>
-                  <span className="text-sm font-medium">{m.stock}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Daily volumes */}
-          <div className="bg-card rounded-xl border p-6">
-            <h2 className="font-semibold mb-4">Выполнение за сегодня</h2>
-            <div className="space-y-3">
-              {dailyWorks.map((w, i) => (
-                <div key={i} className="p-3 rounded-lg border">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-xs text-primary font-medium">{w.object}</p>
-                      <p className="text-sm mt-0.5">{w.work}</p>
-                    </div>
-                    <span className="text-sm font-semibold bg-muted px-2 py-1 rounded">{w.volume}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Incidents */}
         <div className="bg-card rounded-xl border p-6">
-          <h2 className="font-semibold mb-4">Открытые инциденты</h2>
-          <div className="space-y-2">
-            {incidents.map((inc, i) => (
-              <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border ${inc.severity === "high" ? "border-destructive/40" : "border-warning/40"}`}>
-                <AlertTriangle size={16} className={inc.severity === "high" ? "text-destructive" : "text-warning"} />
-                <div className="flex-1">
-                  <p className="text-sm">{inc.desc}</p>
-                  <p className="text-xs text-muted-foreground">{inc.category}</p>
+          <h2 className="font-semibold mb-4">Объекты строительства</h2>
+
+          {isLoading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
+          {error && (
+            <p className="text-sm text-destructive">
+              Ошибка загрузки: {error instanceof Error ? error.message : "неизвестная"}
+            </p>
+          )}
+          {projects && projects.length === 0 && (
+            <p className="text-sm text-muted-foreground">Объектов пока нет.</p>
+          )}
+
+          <div className="space-y-3">
+            {projects?.map((p) => (
+              <div key={p.id} className="p-4 rounded-lg border hover:border-primary/40 transition">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h3 className="text-sm font-medium leading-snug">{p.name}</h3>
+                  <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${statusClass[p.status]}`}>
+                    {statusLabel[p.status]}
+                  </span>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${inc.severity === "high" ? "bg-destructive/10 text-destructive" : "bg-warning/10 text-warning"}`}>
-                  {inc.severity === "high" ? "Критический" : "Средний"}
-                </span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-muted-foreground">
+                  {p.address && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin size={12} />
+                      <span>{p.address}</span>
+                    </div>
+                  )}
+                  {p.customer && (
+                    <div className="flex items-center gap-1.5">
+                      <User size={12} />
+                      <span className="truncate" title={p.customer}>{p.customer}</span>
+                    </div>
+                  )}
+                  {p.endDate && (
+                    <div className="flex items-center gap-1.5">
+                      <Calendar size={12} />
+                      <span>срок: {formatDate(p.endDate)}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
