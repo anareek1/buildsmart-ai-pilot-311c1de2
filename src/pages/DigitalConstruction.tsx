@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Building2, MapPin, User, Calendar, ChevronDown, ChevronRight, FileText } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
+import GenerateKS2Dialog from "@/components/GenerateKS2Dialog";
 import { api } from "@/lib/api";
 
 interface Project {
@@ -160,20 +161,23 @@ export default function DigitalConstruction() {
                         <div className="flex items-center gap-1.5"><Calendar size={12} /><span>срок: {formatDate(p.endDate)}</span></div>
                       )}
                     </div>
-                    <div className="mt-3 flex items-center justify-between">
+                    <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
                       {p.budgetTotal != null && (
                         <span className="text-xs text-muted-foreground">
                           Договор: <span className="font-medium text-foreground">{fmtMoney.format(p.budgetTotal)}</span>
                         </span>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => setOpenId(isOpen ? null : p.id)}
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                      >
-                        {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                        Локальная смета
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <GenerateKS2Dialog projectId={p.id} projectName={p.name} />
+                        <button
+                          type="button"
+                          onClick={() => setOpenId(isOpen ? null : p.id)}
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                          {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                          Локальная смета
+                        </button>
+                      </div>
                     </div>
                     {isOpen && <EstimatePanel projectId={p.id} />}
                   </div>
