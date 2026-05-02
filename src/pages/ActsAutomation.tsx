@@ -1,5 +1,5 @@
 import { FileCheck, FileSpreadsheet, Download, Eye, Wallet } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
 import { api } from "@/lib/api";
@@ -26,18 +26,22 @@ const TYPE_LABELS: Record<string, string> = {
   KS2: "КС-2", KS3: "КС-3", M29: "М-29", AOSR: "АОСР", OTHER: "Другое",
 };
 
-const statusStyles: Record<string, string> = {
-  DRAFT: "bg-muted text-muted-foreground",
-  IN_REVIEW: "bg-warning/10 text-warning",
-  DONE: "bg-success/10 text-success",
-  AWAITING_SIGNATURE: "bg-primary/10 text-primary",
+type Status = "DRAFT" | "IN_REVIEW" | "AWAITING_SIGNATURE" | "DONE";
+
+const STATUS_ORDER: Status[] = ["DRAFT", "IN_REVIEW", "AWAITING_SIGNATURE", "DONE"];
+
+const statusStyles: Record<Status, string> = {
+  DRAFT: "bg-muted text-muted-foreground border-muted",
+  IN_REVIEW: "bg-warning/10 text-warning border-warning/30",
+  AWAITING_SIGNATURE: "bg-primary/10 text-primary border-primary/30",
+  DONE: "bg-success/10 text-success border-success/30",
 };
 
-const statusLabels: Record<string, string> = {
+const statusLabels: Record<Status, string> = {
   DRAFT: "Черновик",
   IN_REVIEW: "На проверке",
-  DONE: "Готово",
   AWAITING_SIGNATURE: "Ожидает подпись",
+  DONE: "Готово",
 };
 
 function fmtDate(d: string) {
@@ -46,9 +50,19 @@ function fmtDate(d: string) {
 }
 
 export default function ActsAutomation() {
+  const queryClient = useQueryClient();
+
   const { data: acts, isLoading } = useQuery<Act[]>({
     queryKey: ["acts"],
     queryFn: () => api.get("/acts"),
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: Status }) =>
+      api.patch<Act>(`/acts/${id}`, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["acts"] });
+    },
   });
 
   const total = acts?.length ?? 0;
@@ -106,9 +120,20 @@ export default function ActsAutomation() {
                         <td className="px-4 md:px-6 py-3 text-right tabular-nums font-medium">{act.amount != null ? fmtMoney.format(act.amount) : "—"}</td>
                         <td className="px-4 md:px-6 py-3 text-muted-foreground hidden md:table-cell">{act.date ? fmtDate(act.date) : "—"}</td>
                         <td className="px-4 md:px-6 py-3 text-center">
-                          <span className={`text-xs px-2.5 py-1 rounded-full ${statusStyles[act.status] ?? ""}`}>
-                            {statusLabels[act.status] ?? act.status}
-                          </span>
+                          <select
+                            value={act.status}
+                            disabled={updateStatus.isPending}
+                            onChange={(e) =>
+                              updateStatus.mutate({ id: act.id, status: e.target.value as Status })
+                            }
+                            className={`text-xs px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary ${statusStyles[act.status as Status] ?? ""} disabled:opacity-50`}
+                          >
+                            {STATUS_ORDER.map((s) => (
+                              <option key={s} value={s}>
+                                {statusLabels[s]}
+                              </option>
+                            ))}
+                          </select>
                         </td>
                         <td className="px-4 md:px-6 py-3 text-center">
                           <button className="text-muted-foreground hover:text-primary transition-colors">
