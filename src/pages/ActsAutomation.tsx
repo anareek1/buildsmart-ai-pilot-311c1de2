@@ -1,4 +1,4 @@
-import { FileCheck, FileSpreadsheet, Download, Eye, Wallet, Package } from "lucide-react";
+import { FileCheck, FileSpreadsheet, Eye, Wallet } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
@@ -143,31 +143,31 @@ export default function ActsAutomation() {
                           </select>
                         </td>
                         <td className="px-4 md:px-6 py-3 text-center">
-                          <div className="inline-flex items-center gap-2">
+                          <div className="inline-flex items-center gap-1.5">
                             <button
                               type="button"
-                              title="Скачать КС-3 (XLSX)"
+                              title="Скачать справку о стоимости (XLSX)"
                               onClick={() =>
                                 api
                                   .download(`/acts/${act.id}/export`)
                                   .catch((e) => alert(`Ошибка экспорта: ${e.message}`))
                               }
-                              className="text-muted-foreground hover:text-primary transition-colors"
+                              className="px-2 py-1 text-xs font-semibold rounded border hover:bg-primary hover:text-primary-foreground hover:border-primary transition"
                             >
-                              <Download size={16} />
+                              КС-2
                             </button>
                             {act.type === "KS2" && (
                               <button
                                 type="button"
-                                title="Скачать М-29 (расход материалов)"
+                                title="Скачать отчёт о расходе материалов (XLSX)"
                                 onClick={() =>
                                   api
                                     .download(`/acts/${act.id}/m29/export`)
                                     .catch((e) => alert(`Ошибка экспорта: ${e.message}`))
                                 }
-                                className="text-muted-foreground hover:text-primary transition-colors"
+                                className="px-2 py-1 text-xs font-semibold rounded border hover:bg-primary hover:text-primary-foreground hover:border-primary transition"
                               >
-                                <Package size={16} />
+                                М-29
                               </button>
                             )}
                           </div>
