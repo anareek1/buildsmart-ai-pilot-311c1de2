@@ -9,6 +9,7 @@ import PageHeader from "@/components/PageHeader";
 import GenerateKS2Dialog from "@/components/GenerateKS2Dialog";
 import SchedulePanel from "@/components/SchedulePanel";
 import AttachmentsPanel from "@/components/AttachmentsPanel";
+import ChecklistPanel from "@/components/ChecklistPanel";
 import { api } from "@/lib/api";
 
 interface Project {
@@ -227,6 +228,9 @@ export default function ProjectDetail() {
 
         {/* ГПР — график производства работ */}
         <SchedulePanel projectId={project.id} />
+
+        {/* Чек-лист ИД */}
+        <ChecklistPanel projectId={project.id} />
 
         {/* Документы объекта */}
         <AttachmentsPanel projectId={project.id} />
