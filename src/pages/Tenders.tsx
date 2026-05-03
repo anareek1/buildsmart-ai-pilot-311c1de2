@@ -9,12 +9,14 @@ interface Tender {
   id: string;
   title: string;
   customer: string;
-  budget: number;
-  deadline: string;
+  budget: number | null;
+  deadline: string | null;
   region: string;
   match: number;
   status: string;
   source: string;
+  externalNum: string | null;
+  procurement: string | null;
 }
 
 interface TendersResponse {
@@ -71,7 +73,7 @@ export default function Tenders() {
 
         {/* Filter */}
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-1">
-          {["all", "NEW", "IN_PROGRESS", "SUBMITTED"].map((f) => (
+          {["all", "NEW", "IN_PROGRESS", "SUBMITTED", "WON", "LOST", "MISSED"].map((f) => (
             <button key={f} onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg text-sm transition-colors whitespace-nowrap flex-shrink-0 ${filter === f ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
               {f === "all" ? "Все" : STATUS_LABELS[f]}
@@ -102,18 +104,32 @@ export default function Tenders() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-4 text-sm">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Banknote size={14} />
-                      <span className="font-medium text-foreground">{fmt(tender.budget)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Calendar size={14} />
-                      <span>до {fmtDate(tender.deadline)}</span>
-                    </div>
+                    {tender.budget != null && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Banknote size={14} />
+                        <span className="font-medium text-foreground">{fmt(tender.budget)}</span>
+                      </div>
+                    )}
+                    {tender.deadline && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Calendar size={14} />
+                        <span>до {fmtDate(tender.deadline)}</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-1.5 text-muted-foreground">
                       <MapPin size={14} />
                       <span>{tender.region}</span>
                     </div>
+                    {tender.procurement && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="text-xs">{tender.procurement}</span>
+                      </div>
+                    )}
+                    {tender.externalNum && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="font-mono text-xs">№ {tender.externalNum}</span>
+                      </div>
+                    )}
                   </div>
                   {tender.status === "NEW" && (
                     <div className="flex gap-2 mt-4">

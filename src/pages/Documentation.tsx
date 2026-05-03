@@ -15,12 +15,18 @@ interface Doc {
 
 interface ChatMessage { role: "user" | "assistant"; content: string }
 
-const normativeDocs = [
-  "СНиП РК 5.03-37-2005 — Бетонные и ж/б конструкции",
-  "СП РК 2.02-01-2019 — Основания зданий и сооружений",
-  "Закон РК «О государственных закупках»",
-  "Приказ №245 — Правила формирования КС-2, КС-3",
-];
+interface Standard {
+  id: string;
+  code: string;
+  name: string;
+  category: string;
+}
+
+interface StandardsResponse {
+  total: number;
+  items: Standard[];
+  grouped: { category: string; items: Standard[] }[];
+}
 
 const TYPE_LABELS: Record<string, string> = {
   KS2: "КС-2", KS3: "КС-3", M29: "М-29", AOSR: "АОСР", OTHER: "Другое",
@@ -39,6 +45,10 @@ export default function Documentation() {
   const { data: docs } = useQuery<Doc[]>({
     queryKey: ["documentation"],
     queryFn: () => api.get("/documentation"),
+  });
+  const { data: standards } = useQuery<StandardsResponse>({
+    queryKey: ["standards"],
+    queryFn: () => api.get("/documentation/standards"),
   });
 
   const sendMessage = async () => {
@@ -128,15 +138,30 @@ export default function Documentation() {
 
           {/* Normative Base */}
           <div className="bg-card rounded-xl border p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <BookOpen size={18} className="text-primary" />
-              <h2 className="font-semibold">Нормативная база</h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen size={18} className="text-primary" />
+                <h2 className="font-semibold">Нормативная база</h2>
+              </div>
+              {standards && (
+                <span className="text-xs text-muted-foreground">{standards.total} нормативных актов</span>
+              )}
             </div>
-            <div className="space-y-2">
-              {normativeDocs.map((doc, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 cursor-pointer transition-colors">
-                  <FileText size={16} className="text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm">{doc}</span>
+            <div className="space-y-4 max-h-[420px] overflow-y-auto">
+              {(standards?.grouped ?? []).map((group) => (
+                <div key={group.category}>
+                  <h3 className="text-xs font-semibold uppercase text-muted-foreground mb-1.5">{group.category}</h3>
+                  <div className="space-y-1">
+                    {group.items.map((s) => (
+                      <div key={s.id} className="flex items-start gap-2 p-2 rounded hover:bg-muted/30">
+                        <FileText size={14} className="text-muted-foreground flex-shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium font-mono">{s.code}</p>
+                          <p className="text-xs text-muted-foreground">{s.name}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
