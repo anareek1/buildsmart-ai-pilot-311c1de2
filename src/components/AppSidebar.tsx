@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   HardHat, Building2, FileCheck, Users, FileText,
-  BarChart3, Calculator, Search, LayoutDashboard, Package,
+  BarChart3, Calculator, Search, LayoutDashboard, Package, Scale,
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +18,7 @@ const modules = [
   { path: "/app/analytics", icon: BarChart3, label: "Аналитика" },
   { path: "/app/accounting", icon: Calculator, label: "ИИ-бухгалтер" },
   { path: "/app/tenders", icon: Search, label: "Поиск тендеров" },
+  { path: "/app/legal", icon: Scale, label: "ИИ-юрист" },
 ];
 
 interface Props {

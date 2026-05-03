@@ -17,6 +17,7 @@ import Documentation from "@/pages/Documentation";
 import Analytics from "@/pages/Analytics";
 import Accounting from "@/pages/Accounting";
 import Tenders from "@/pages/Tenders";
+import LegalAssistant from "@/pages/LegalAssistant";
 import NotFound from "@/pages/NotFound";
 
 // Lazy-load the marketing home page separately
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="analytics" element={<Analytics />} />
             <Route path="accounting" element={<Accounting />} />
             <Route path="tenders" element={<Tenders />} />
+            <Route path="legal" element={<LegalAssistant />} />
           </Route>
 
           {/* Legacy redirects */}
