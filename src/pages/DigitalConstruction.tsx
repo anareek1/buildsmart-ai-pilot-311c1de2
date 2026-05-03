@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, MapPin, User, Calendar, ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { Building2, MapPin, User, Calendar, ChevronDown, ChevronRight, FileText, ExternalLink } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
 import GenerateKS2Dialog from "@/components/GenerateKS2Dialog";
@@ -145,7 +146,13 @@ export default function DigitalConstruction() {
                 <div key={p.id} className="rounded-lg border hover:border-primary/40 transition">
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <h3 className="text-sm font-medium leading-snug">{p.name}</h3>
+                      <Link
+                        to={`/app/projects/${p.id}`}
+                        className="text-sm font-medium leading-snug hover:text-primary inline-flex items-start gap-1.5 group"
+                      >
+                        {p.name}
+                        <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition mt-0.5 flex-shrink-0" />
+                      </Link>
                       <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${statusClass[p.status]}`}>
                         {statusLabel[p.status]}
                       </span>
