@@ -1,7 +1,8 @@
 import { HardHat, FileSpreadsheet, ClipboardCheck, BookOpen, CalendarCheck, Send } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
+import ChecklistPanel from "@/components/ChecklistPanel";
 import { useState } from "react";
 import { api } from "@/lib/api";
 
@@ -53,19 +54,12 @@ export default function PTOAssistant() {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [sending, setSending] = useState(false);
-  const qc = useQueryClient();
 
   const { data: stats } = useQuery<PTOStats>({ queryKey: ["pto-stats"], queryFn: () => api.get("/pto/stats") });
   const { data: docs } = useQuery<Document[]>({ queryKey: ["pto-docs"], queryFn: () => api.get("/pto/documents") });
   const { data: groups } = useQuery<ProjectGroup[]>({
     queryKey: ["pto-checklist-by-project"],
     queryFn: () => api.get("/pto/checklist/by-project"),
-  });
-
-  const toggleItem = useMutation({
-    mutationFn: ({ id, done }: { id: string; done: boolean }) =>
-      api.patch(`/pto/checklist/${id}`, { done }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pto-checklist-by-project"] }),
   });
 
   const sendMessage = async () => {
@@ -164,60 +158,20 @@ export default function PTOAssistant() {
           </div>
         </div>
 
-        {/* ID Checklist по объектам */}
+        {/* ID Checklist по объектам — живой редактор */}
         <div className="space-y-4">
-          {(groups ?? []).map((g) => {
-            const done = g.items.filter((i) => i.done).length;
-            const total = g.items.length;
-            const pct = total ? Math.round((done / total) * 100) : 0;
-            return (
-              <div key={g.projectId ?? "_none"} className="bg-card rounded-xl border p-4 md:p-6">
-                <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
-                  <div>
-                    <h3 className="font-semibold text-sm">Чек-лист ИД</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">{g.projectName}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground">{done} / {total}</span>
-                    <div className="w-32 h-2 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
-                    </div>
-                    <span className="text-xs font-medium tabular-nums w-10 text-right">{pct}%</span>
-                  </div>
+          {(groups ?? []).map((g) => (
+            <div key={g.projectId ?? "_none"}>
+              <p className="text-xs uppercase font-semibold text-muted-foreground mb-1.5 px-1">{g.projectName}</p>
+              {g.projectId ? (
+                <ChecklistPanel projectId={g.projectId} />
+              ) : (
+                <div className="bg-card rounded-xl border p-4 text-sm text-muted-foreground">
+                  Пункты без привязки к объекту: {g.items.length} шт.
                 </div>
-                <div className="space-y-1.5">
-                  {g.items.map((item) => (
-                    <div key={item.id} className="flex items-start gap-3 p-2.5 rounded-md border hover:bg-muted/30">
-                      <input
-                        type="checkbox"
-                        checked={item.done}
-                        onChange={() => toggleItem.mutate({ id: item.id, done: !item.done })}
-                        className="w-4 h-4 mt-0.5 rounded accent-primary cursor-pointer"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${item.done ? "text-foreground" : ""}`}>
-                          <span className="text-muted-foreground mr-1.5">{item.position}.</span>
-                          {item.label}
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-1 text-xs">
-                          {item.status && (
-                            <span className={`px-1.5 py-0.5 rounded ${item.done ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
-                              {item.status}
-                            </span>
-                          )}
-                          {item.supervisor && (
-                            <span className="px-1.5 py-0.5 rounded bg-info/10 text-info">
-                              ✓ {item.supervisor}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
