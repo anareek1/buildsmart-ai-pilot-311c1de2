@@ -7,6 +7,7 @@ import {
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import PageHeader from "@/components/PageHeader";
 import GenerateKS2Dialog from "@/components/GenerateKS2Dialog";
+import SchedulePanel from "@/components/SchedulePanel";
 import { api } from "@/lib/api";
 
 interface Project {
@@ -222,6 +223,9 @@ export default function ProjectDetail() {
             </div>
           </div>
         </div>
+
+        {/* ГПР — график производства работ */}
+        <SchedulePanel projectId={project.id} />
 
         {/* Реестр актов */}
         <div className="bg-card rounded-xl border overflow-hidden">
