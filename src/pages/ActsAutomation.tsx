@@ -125,7 +125,7 @@ export default function ActsAutomation() {
                         <td className="px-4 md:px-6 py-3">{act.project?.name ?? "—"}</td>
                         <td className="px-4 md:px-6 py-3 text-muted-foreground hidden md:table-cell truncate max-w-[200px]">{act.name}</td>
                         <td className="px-4 md:px-6 py-3 text-right tabular-nums font-medium">{act.amount != null ? fmtMoney.format(act.amount) : "—"}</td>
-                        <td className="px-4 md:px-6 py-3 text-muted-foreground hidden md:table-cell">{act.date ? fmtDate(act.date) : "—"}</td>
+                        <td className="px-4 md:px-6 py-3 text-muted-foreground hidden md:table-cell">{act.date ? fmtDate(act.date) : <span className="italic">нет даты</span>}</td>
                         <td className="px-4 md:px-6 py-3 text-center">
                           <select
                             value={act.status}

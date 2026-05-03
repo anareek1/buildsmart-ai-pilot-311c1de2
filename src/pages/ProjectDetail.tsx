@@ -253,7 +253,7 @@ export default function ProjectDetail() {
                     <tr key={a.id} className="border-b last:border-0 hover:bg-muted/20">
                       <td className="px-4 py-2 text-muted-foreground">{a.number ?? "—"}</td>
                       <td className="px-4 py-2">{a.name}</td>
-                      <td className="px-4 py-2 text-muted-foreground">{fmtDate(a.date)}</td>
+                      <td className="px-4 py-2 text-muted-foreground">{a.date ? fmtDate(a.date) : <span className="italic">нет даты</span>}</td>
                       <td className="px-4 py-2 text-right tabular-nums font-medium">
                         {a.amount != null ? fmtMoney.format(a.amount) : "—"}
                       </td>
