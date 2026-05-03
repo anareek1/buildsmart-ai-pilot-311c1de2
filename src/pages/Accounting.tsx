@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Calculator, ArrowDownCircle, ArrowUpCircle, Landmark, Search } from "lucide-react";
+import { Calculator, ArrowDownCircle, ArrowUpCircle, Landmark, Search, Users } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
@@ -38,6 +38,26 @@ interface BankSummary {
   monthlyTrend: { month: string; income: number; expense: number }[];
 }
 
+interface Employee {
+  id: string;
+  position: string;
+  units: number;
+  salary: number;
+  payout: number;
+  socialTax: number;
+  pension: number;
+  ipn: number;
+  osms: number;
+}
+
+interface PayrollResponse {
+  employees: Employee[];
+  totalUnits: number;
+  totalSalary: number;
+  totalPayout: number;
+  totalTaxes: number;
+}
+
 const fmtMoney = new Intl.NumberFormat("ru-RU", { style: "currency", currency: "KZT", maximumFractionDigits: 0 });
 const fmtMln = (n: number) => `${(n / 1_000_000).toFixed(1)} млн ₸`;
 const fmtDate = (s: string) => new Date(s).toLocaleDateString("ru-RU");
@@ -57,6 +77,10 @@ export default function Accounting() {
   const { data: transactions } = useQuery<BankTx[]>({
     queryKey: ["bank-transactions"],
     queryFn: () => api.get("/accounting/bank"),
+  });
+  const { data: payroll } = useQuery<PayrollResponse>({
+    queryKey: ["payroll"],
+    queryFn: () => api.get("/accounting/payroll"),
   });
 
   const filtered = useMemo(() => {
@@ -229,6 +253,54 @@ export default function Accounting() {
             )}
           </div>
         </div>
+
+        {/* Штатное расписание */}
+        {payroll && payroll.employees.length > 0 && (
+          <div className="bg-card rounded-xl border p-4 md:p-6">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Users size={18} className="text-primary" />
+                <h2 className="font-semibold text-sm">Штатное расписание</h2>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span>{payroll.totalUnits} ед.</span>
+                <span>ФОТ (оклад): <span className="font-medium text-foreground">{fmtMoney.format(payroll.totalSalary)}</span></span>
+                <span>К выплате: <span className="font-medium text-foreground">{fmtMoney.format(payroll.totalPayout)}</span></span>
+                <span>Налоги: <span className="font-medium text-destructive">{fmtMoney.format(payroll.totalTaxes)}</span></span>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead className="text-muted-foreground border-b">
+                  <tr>
+                    <th className="text-left py-2">Должность</th>
+                    <th className="text-right py-2">Ед.</th>
+                    <th className="text-right py-2">Оклад</th>
+                    <th className="text-right py-2">К выплате</th>
+                    <th className="text-right py-2">ОПВ</th>
+                    <th className="text-right py-2">ИПН</th>
+                    <th className="text-right py-2">ВОСМС</th>
+                    <th className="text-right py-2">Соц. налог</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payroll.employees.map((e) => (
+                    <tr key={e.id} className="border-b last:border-0 hover:bg-muted/20">
+                      <td className="py-1.5">{e.position}</td>
+                      <td className="py-1.5 text-right">{e.units}</td>
+                      <td className="py-1.5 text-right tabular-nums font-medium">{fmtMoney.format(e.salary)}</td>
+                      <td className="py-1.5 text-right tabular-nums text-success">{fmtMoney.format(e.payout)}</td>
+                      <td className="py-1.5 text-right tabular-nums text-muted-foreground">{e.pension > 0 ? fmtMoney.format(e.pension) : ""}</td>
+                      <td className="py-1.5 text-right tabular-nums text-muted-foreground">{e.ipn > 0 ? fmtMoney.format(e.ipn) : ""}</td>
+                      <td className="py-1.5 text-right tabular-nums text-muted-foreground">{e.osms > 0 ? fmtMoney.format(e.osms) : ""}</td>
+                      <td className="py-1.5 text-right tabular-nums text-muted-foreground">{e.socialTax > 0 ? fmtMoney.format(e.socialTax) : ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         <div className="bg-card rounded-xl border p-4 md:p-6">
           <div className="flex items-center justify-between mb-3">
