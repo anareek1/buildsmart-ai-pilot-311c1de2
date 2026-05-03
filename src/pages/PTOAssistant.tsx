@@ -22,9 +22,19 @@ interface Document {
 
 interface ChecklistItem {
   id: string;
+  projectId: string | null;
+  position: number;
   label: string;
   done: boolean;
+  status: string | null;
+  supervisor: string | null;
   groupName: string;
+}
+
+interface ProjectGroup {
+  projectId: string | null;
+  projectName: string;
+  items: ChecklistItem[];
 }
 
 interface ChatMessage {
@@ -47,12 +57,15 @@ export default function PTOAssistant() {
 
   const { data: stats } = useQuery<PTOStats>({ queryKey: ["pto-stats"], queryFn: () => api.get("/pto/stats") });
   const { data: docs } = useQuery<Document[]>({ queryKey: ["pto-docs"], queryFn: () => api.get("/pto/documents") });
-  const { data: checklist } = useQuery<ChecklistItem[]>({ queryKey: ["pto-checklist"], queryFn: () => api.get("/pto/checklist") });
+  const { data: groups } = useQuery<ProjectGroup[]>({
+    queryKey: ["pto-checklist-by-project"],
+    queryFn: () => api.get("/pto/checklist/by-project"),
+  });
 
   const toggleItem = useMutation({
     mutationFn: ({ id, done }: { id: string; done: boolean }) =>
       api.patch(`/pto/checklist/${id}`, { done }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pto-checklist"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pto-checklist-by-project"] }),
   });
 
   const sendMessage = async () => {
@@ -151,24 +164,60 @@ export default function PTOAssistant() {
           </div>
         </div>
 
-        {/* ID Checklist */}
-        <div className="bg-card rounded-xl border p-4 md:p-6">
-          <h2 className="font-semibold mb-4">Чек-лист ИД — {checklist?.[0]?.groupName ?? "Фундамент"}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {(checklist ?? []).map((item) => (
-              <label key={item.id} className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50">
-                <input
-                  type="checkbox"
-                  checked={item.done}
-                  onChange={() => toggleItem.mutate({ id: item.id, done: !item.done })}
-                  className="w-4 h-4 rounded accent-primary"
-                />
-                <span className={`text-sm ${item.done ? "line-through text-muted-foreground" : ""}`}>
-                  {item.label}
-                </span>
-              </label>
-            ))}
-          </div>
+        {/* ID Checklist по объектам */}
+        <div className="space-y-4">
+          {(groups ?? []).map((g) => {
+            const done = g.items.filter((i) => i.done).length;
+            const total = g.items.length;
+            const pct = total ? Math.round((done / total) * 100) : 0;
+            return (
+              <div key={g.projectId ?? "_none"} className="bg-card rounded-xl border p-4 md:p-6">
+                <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+                  <div>
+                    <h3 className="font-semibold text-sm">Чек-лист ИД</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{g.projectName}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground">{done} / {total}</span>
+                    <div className="w-32 h-2 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="text-xs font-medium tabular-nums w-10 text-right">{pct}%</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  {g.items.map((item) => (
+                    <div key={item.id} className="flex items-start gap-3 p-2.5 rounded-md border hover:bg-muted/30">
+                      <input
+                        type="checkbox"
+                        checked={item.done}
+                        onChange={() => toggleItem.mutate({ id: item.id, done: !item.done })}
+                        className="w-4 h-4 mt-0.5 rounded accent-primary cursor-pointer"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm ${item.done ? "text-foreground" : ""}`}>
+                          <span className="text-muted-foreground mr-1.5">{item.position}.</span>
+                          {item.label}
+                        </p>
+                        <div className="flex flex-wrap gap-2 mt-1 text-xs">
+                          {item.status && (
+                            <span className={`px-1.5 py-0.5 rounded ${item.done ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
+                              {item.status}
+                            </span>
+                          )}
+                          {item.supervisor && (
+                            <span className="px-1.5 py-0.5 rounded bg-info/10 text-info">
+                              ✓ {item.supervisor}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
