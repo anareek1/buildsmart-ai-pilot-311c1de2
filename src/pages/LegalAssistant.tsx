@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Scale, Send, FileText, Briefcase, AlertTriangle, Trash2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import GenerateLetterDialog from "@/components/GenerateLetterDialog";
 import { api } from "@/lib/api";
 
 interface ChatMessage { role: "user" | "assistant"; content: string }
@@ -84,7 +85,7 @@ export default function LegalAssistant() {
               </div>
             ) : (
               messages.map((m, i) => (
-                <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div key={i} className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
                   <div
                     className={`max-w-[85%] px-4 py-2.5 rounded-lg text-sm whitespace-pre-wrap leading-relaxed ${
                       m.role === "user"
@@ -94,6 +95,11 @@ export default function LegalAssistant() {
                   >
                     {m.content}
                   </div>
+                  {m.role === "assistant" && m.content.length > 100 && (
+                    <div className="mt-1.5">
+                      <GenerateLetterDialog initialBody={m.content} />
+                    </div>
+                  )}
                 </div>
               ))
             )}
