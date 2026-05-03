@@ -9,6 +9,49 @@ interface Props {
   initialBody?: string;
 }
 
+/** Extract clean letter body from AI response. Strips:
+ *  - everything outside ```letter ... ``` block (if present)
+ *  - markdown bold/italic markers
+ *  - leading/trailing reqs blocks if AI repeated them
+ *  - sections "Практические шаги" / "Риски" / "Что нужно уточнить"
+ */
+function extractLetterBody(raw: string): { body: string; subject: string } {
+  let text = raw.trim();
+  let subject = "";
+
+  // 1. If there's a ```letter ... ``` block — use only that
+  const blockMatch = text.match(/```letter\s*\n([\s\S]*?)```/i);
+  if (blockMatch) {
+    text = blockMatch[1].trim();
+  } else {
+    // Fallback: cut everything after sections markers
+    text = text.split(/\n\s*(?:\*\*)?(?:Практические шаги|Риски и оговорки|Что нужно уточнить|Правовое обоснование|---)/i)[0].trim();
+  }
+
+  // 2. Remove markdown bold/italic
+  text = text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/__([^_]+)__/g, "$1");
+  text = text.replace(/\*([^*\n]+)\*/g, "$1").replace(/_([^_\n]+)_/g, "$1");
+
+  // 3. Detect heading on first line
+  const lines = text.split("\n");
+  if (lines.length > 1) {
+    const first = lines[0].trim();
+    const looksLikeHeading =
+      first.length > 0 &&
+      first.length < 120 &&
+      !first.endsWith(".") &&
+      !first.includes(",") &&
+      /^[А-ЯA-Z«„]/u.test(first) &&
+      first.split(/\s+/).length <= 12;
+    if (looksLikeHeading) {
+      subject = first.replace(/^["«„]|["»"]$/g, "").trim();
+      text = lines.slice(1).join("\n").trim();
+    }
+  }
+
+  return { body: text, subject };
+}
+
 export default function GenerateLetterDialog({ initialBody = "" }: Props) {
   const [open, setOpen] = useState(false);
   const [recipient, setRecipient] = useState("Министру финансов\nРеспублики Казахстан\n[ФИО Министра]");
@@ -63,7 +106,17 @@ export default function GenerateLetterDialog({ initialBody = "" }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (o) setBody(initialBody); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) {
+          const extracted = extractLetterBody(initialBody);
+          setBody(extracted.body);
+          if (extracted.subject) setSubject(extracted.subject);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <button
           type="button"
