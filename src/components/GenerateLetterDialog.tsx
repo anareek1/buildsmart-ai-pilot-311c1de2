@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 
 interface Props {
   initialBody?: string;
+  sessionId?: string;
 }
 
 /** Extract clean letter body from AI response. Strips:
@@ -52,7 +53,7 @@ function extractLetterBody(raw: string): { body: string; subject: string } {
   return { body: text, subject };
 }
 
-export default function GenerateLetterDialog({ initialBody = "" }: Props) {
+export default function GenerateLetterDialog({ initialBody = "", sessionId }: Props) {
   const [open, setOpen] = useState(false);
   const [recipient, setRecipient] = useState("Министру финансов\nРеспублики Казахстан\n[ФИО Министра]");
   const [subject, setSubject] = useState("");
@@ -81,6 +82,7 @@ export default function GenerateLetterDialog({ initialBody = "" }: Props) {
           date: date || undefined,
           signed,
           filename: filename || undefined,
+          sessionId,
         }),
       });
       if (!res.ok) {
