@@ -1,175 +1,267 @@
-import { Calculator, TrendingUp, TrendingDown, Receipt, Percent, ArrowUpRight, ArrowDownRight, Send } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Calculator, ArrowDownCircle, ArrowUpCircle, Landmark, Search } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { api } from "@/lib/api";
-import { useState } from "react";
 
-interface AccountingSummary {
-  thisMonthIncome: number;
-  thisMonthExpenses: number;
-  thisMonthProfit: number;
-  taxDue: number;
-  recentTransactions: { id: string; type: string; description: string; amount: number; date: string }[];
-  taxes: { id: string; name: string; amount: number; deadline: string; paid: boolean }[];
-  expenseCategories: { name: string; value: number }[];
-  monthlyFlow?: { month: string; income: number; expense: number }[];
+interface Account {
+  id: string;
+  code: string;
+  name: string;
+  startDebit: number;
+  startCredit: number;
+  turnoverDebit: number;
+  turnoverCredit: number;
+  endDebit: number;
+  endCredit: number;
 }
 
-interface ChatMessage { role: "user" | "assistant"; content: string }
+interface BankTx {
+  id: string;
+  date: string;
+  docNumber: string | null;
+  counterparty: string | null;
+  debit: number;
+  credit: number;
+  purpose: string | null;
+  category: string | null;
+}
 
-const COLORS = [
-  "hsl(22, 90%, 52%)", "hsl(22, 70%, 65%)", "hsl(30, 50%, 60%)", "hsl(30, 30%, 70%)", "hsl(30, 20%, 80%)",
-];
+interface BankSummary {
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+  txCount: number;
+  byCategory: { name: string; expense: number; income: number; count: number }[];
+  monthlyTrend: { month: string; income: number; expense: number }[];
+}
 
-function fmt(n: number) { return `${(Math.abs(n) / 1_000_000).toFixed(1)} млн ₸`; }
-function fmtDate(d: string) { const dt = new Date(d); return `${String(dt.getDate()).padStart(2, "0")}.${String(dt.getMonth() + 1).padStart(2, "0")}`; }
+const fmtMoney = new Intl.NumberFormat("ru-RU", { style: "currency", currency: "KZT", maximumFractionDigits: 0 });
+const fmtMln = (n: number) => `${(n / 1_000_000).toFixed(1)} млн ₸`;
+const fmtDate = (s: string) => new Date(s).toLocaleDateString("ru-RU");
 
 export default function Accounting() {
-  const { data, isLoading } = useQuery<AccountingSummary>({
-    queryKey: ["accounting"],
-    queryFn: () => api.get("/accounting/summary"),
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+
+  const { data: summary } = useQuery<BankSummary>({
+    queryKey: ["bank-summary"],
+    queryFn: () => api.get("/accounting/bank/summary"),
+  });
+  const { data: accounts } = useQuery<Account[]>({
+    queryKey: ["accounts"],
+    queryFn: () => api.get("/accounting/accounts"),
+  });
+  const { data: transactions } = useQuery<BankTx[]>({
+    queryKey: ["bank-transactions"],
+    queryFn: () => api.get("/accounting/bank"),
   });
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [query, setQuery] = useState("");
-  const [sending, setSending] = useState(false);
+  const filtered = useMemo(() => {
+    if (!transactions) return [];
+    const q = search.trim().toLowerCase();
+    return transactions.filter((t) => {
+      if (category !== "all" && (t.category ?? "Прочее") !== category) return false;
+      if (!q) return true;
+      return (
+        (t.counterparty ?? "").toLowerCase().includes(q) ||
+        (t.purpose ?? "").toLowerCase().includes(q) ||
+        (t.docNumber ?? "").includes(q)
+      );
+    });
+  }, [transactions, search, category]);
 
-  const sendMessage = async () => {
-    if (!query.trim()) return;
-    const userMsg: ChatMessage = { role: "user", content: query };
-    const next = [...messages, userMsg];
-    setMessages(next);
-    setQuery("");
-    setSending(true);
-    try {
-      const res = await api.post<{ reply: string }>("/ai/chat", { module: "accounting", messages: next });
-      setMessages([...next, { role: "assistant", content: res.reply }]);
-    } catch {
-      setMessages([...next, { role: "assistant", content: "Ошибка. Попробуйте ещё раз." }]);
-    } finally {
-      setSending(false);
-    }
-  };
+  const importantAccounts = useMemo(
+    () =>
+      (accounts ?? [])
+        .filter(
+          (a) =>
+            a.turnoverDebit + a.turnoverCredit > 0 ||
+            Math.abs(a.endDebit - a.endCredit) > 100_000,
+        )
+        .slice(0, 25),
+    [accounts],
+  );
 
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="ИИ-помощник бухгалтера"
-        description="Учёт доходов, расходов, налогов и финансовая аналитика"
+        title="ИИ-бухгалтер"
+        description="Оборотно-сальдовая ведомость, банковские движения, налоги"
         icon={<Calculator size={22} />}
       />
 
-      <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          <StatCard title="Доходы (месяц)" value={data ? fmt(data.thisMonthIncome) : "—"} icon={<TrendingUp size={20} />} />
-          <StatCard title="Расходы (месяц)" value={data ? fmt(data.thisMonthExpenses) : "—"} icon={<TrendingDown size={20} />} />
-          <StatCard title="Прибыль (месяц)" value={data ? fmt(data.thisMonthProfit) : "—"} change={data ? `Маржа ${Math.round((data.thisMonthProfit / (data.thisMonthIncome || 1)) * 100)}%` : undefined} changeType="positive" icon={<Receipt size={20} />} />
-          <StatCard title="Налоги к уплате" value={data ? fmt(data.taxDue) : "—"} changeType="negative" icon={<Percent size={20} />} />
+          <StatCard
+            title="Поступления"
+            value={summary ? fmtMln(summary.totalIncome) : "—"}
+            change="за период данных"
+            changeType="positive"
+            icon={<ArrowDownCircle size={20} />}
+          />
+          <StatCard
+            title="Списания"
+            value={summary ? fmtMln(summary.totalExpense) : "—"}
+            change={summary ? `${summary.txCount} операций` : undefined}
+            changeType="negative"
+            icon={<ArrowUpCircle size={20} />}
+          />
+          <StatCard
+            title="Сальдо"
+            value={summary ? fmtMln(summary.balance) : "—"}
+            change={summary && summary.balance < 0 ? "отток денег" : "приток"}
+            changeType={summary && summary.balance >= 0 ? "positive" : "negative"}
+            icon={<Landmark size={20} />}
+          />
+          <StatCard
+            title="Счетов в ОСВ"
+            value={accounts ? String(accounts.length) : "—"}
+            icon={<Calculator size={20} />}
+          />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {/* Expense Breakdown */}
+        {summary && summary.monthlyTrend.length > 0 && (
           <div className="bg-card rounded-xl border p-4 md:p-6">
-            <h2 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Структура расходов</h2>
-            {isLoading ? (
-              <div className="h-[180px] bg-muted animate-pulse rounded-lg" />
-            ) : (
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <ResponsiveContainer width="100%" height={180} className="sm:!w-1/2">
-                  <PieChart>
-                    <Pie data={data?.expenseCategories ?? []} dataKey="value" cx="50%" cy="50%" outerRadius={70} innerRadius={35}>
-                      {(data?.expenseCategories ?? []).map((_, i) => (
-                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(v: number) => fmt(v)} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="space-y-2 w-full sm:w-1/2">
-                  {(data?.expenseCategories ?? []).map((cat, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs">
-                      <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                      <span>{cat.name}</span>
-                      <span className="text-muted-foreground ml-auto">{fmt(cat.value)}</span>
-                    </div>
-                  ))}
-                </div>
+            <h2 className="font-semibold text-sm mb-3">Поступления и списания по месяцам</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={summary.monthlyTrend} margin={{ left: 0, right: 5, top: 5, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}M`} />
+                <Tooltip formatter={(v: number) => fmtMln(v)} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="income" name="Приход" fill="hsl(142, 71%, 45%)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expense" name="Расход" fill="hsl(22, 90%, 52%)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {summary && (
+          <div className="bg-card rounded-xl border p-4 md:p-6">
+            <h2 className="font-semibold text-sm mb-3">Структура движений по категориям</h2>
+            <table className="w-full text-sm">
+              <thead className="text-xs text-muted-foreground border-b">
+                <tr>
+                  <th className="text-left pb-2">Категория</th>
+                  <th className="text-right pb-2">Расход</th>
+                  <th className="text-right pb-2">Приход</th>
+                  <th className="text-right pb-2">Операций</th>
+                </tr>
+              </thead>
+              <tbody>
+                {summary.byCategory.map((c) => (
+                  <tr key={c.name} className="border-b last:border-0">
+                    <td className="py-2">{c.name}</td>
+                    <td className="py-2 text-right tabular-nums text-destructive">{c.expense > 0 ? fmtMoney.format(c.expense) : "—"}</td>
+                    <td className="py-2 text-right tabular-nums text-success">{c.income > 0 ? fmtMoney.format(c.income) : "—"}</td>
+                    <td className="py-2 text-right text-muted-foreground">{c.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="bg-card rounded-xl border p-4 md:p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <h2 className="font-semibold text-sm">Банковские движения ({filtered.length})</h2>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="all">Все категории</option>
+                {(summary?.byCategory ?? []).map((c) => (
+                  <option key={c.name} value={c.name}>
+                    {c.name} ({c.count})
+                  </option>
+                ))}
+              </select>
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Контрагент / назначение..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full sm:w-64 pl-9 pr-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                />
               </div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead className="sticky top-0 bg-card text-muted-foreground border-b">
+                <tr>
+                  <th className="text-left py-2">Дата</th>
+                  <th className="text-left py-2">Контрагент</th>
+                  <th className="text-left py-2">Назначение</th>
+                  <th className="text-left py-2">Категория</th>
+                  <th className="text-right py-2">Расход</th>
+                  <th className="text-right py-2">Приход</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.slice(0, 200).map((t) => (
+                  <tr key={t.id} className="border-b last:border-0 hover:bg-muted/20">
+                    <td className="py-1.5 text-muted-foreground whitespace-nowrap">{fmtDate(t.date)}</td>
+                    <td className="py-1.5 max-w-[180px] truncate" title={t.counterparty ?? ""}>{t.counterparty}</td>
+                    <td className="py-1.5 max-w-[260px] truncate text-muted-foreground" title={t.purpose ?? ""}>{t.purpose}</td>
+                    <td className="py-1.5">
+                      {t.category && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted">{t.category}</span>
+                      )}
+                    </td>
+                    <td className="py-1.5 text-right tabular-nums text-destructive">{t.debit > 0 ? fmtMoney.format(t.debit) : ""}</td>
+                    <td className="py-1.5 text-right tabular-nums text-success">{t.credit > 0 ? fmtMoney.format(t.credit) : ""}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {filtered.length > 200 && (
+              <p className="text-xs text-muted-foreground mt-2 text-center">Показаны первые 200 из {filtered.length}. Используйте поиск/фильтр.</p>
             )}
           </div>
-
-          {/* AI Chat */}
-          <div className="bg-card rounded-xl border p-4 md:p-6 flex flex-col">
-            <h2 className="font-semibold mb-3 text-sm md:text-base">ИИ-помощник бухгалтера</h2>
-            <div className="bg-muted rounded-lg p-3 mb-3 min-h-[140px] flex-1 overflow-y-auto space-y-2 text-sm">
-              {messages.length === 0 ? (
-                <p className="text-muted-foreground text-xs">Спросите о налогах, расходах или финансовом анализе...</p>
-              ) : messages.map((m, i) => (
-                <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] px-3 py-2 rounded-lg text-xs whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-background border"}`}>
-                    {m.content}
-                  </div>
-                </div>
-              ))}
-              {sending && <div className="text-xs text-muted-foreground">Думаю...</div>}
-            </div>
-            <div className="flex gap-2">
-              <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendMessage()} placeholder="Введите вопрос..." className="flex-1 px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-              <button onClick={sendMessage} disabled={sending} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
-                <Send size={16} />
-              </button>
-            </div>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {/* Recent Transactions */}
-          <div className="bg-card rounded-xl border p-4 md:p-6">
-            <h2 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Последние операции</h2>
-            <div className="space-y-2">
-              {(data?.recentTransactions ?? []).map((tx) => (
-                <div key={tx.id} className="flex items-center gap-3 p-3 rounded-lg border">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${tx.type === "INCOME" ? "bg-success/10" : tx.type === "TAX" ? "bg-primary/10" : "bg-destructive/10"}`}>
-                    {tx.type === "INCOME" ? <ArrowUpRight size={14} className="text-success" /> : <ArrowDownRight size={14} className={tx.type === "TAX" ? "text-primary" : "text-destructive"} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{tx.description}</p>
-                    <p className="text-xs text-muted-foreground">{fmtDate(tx.date)}</p>
-                  </div>
-                  <span className={`text-sm font-medium whitespace-nowrap ${tx.type === "INCOME" ? "text-success" : ""}`}>
-                    {tx.type === "INCOME" ? "+" : "-"}{fmt(Math.abs(tx.amount))}
-                  </span>
-                </div>
-              ))}
-            </div>
+        <div className="bg-card rounded-xl border p-4 md:p-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-sm">Оборотно-сальдовая ведомость</h2>
+            <span className="text-xs text-muted-foreground">показаны активные счета</span>
           </div>
-
-          {/* Tax Calendar */}
-          <div className="bg-card rounded-xl border p-4 md:p-6">
-            <h2 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Налоговый календарь</h2>
-            <div className="space-y-3">
-              {(data?.taxes ?? []).map((tax) => (
-                <div key={tax.id} className="flex items-center justify-between p-3 rounded-lg border">
-                  <div>
-                    <p className="text-sm font-medium">{tax.name}</p>
-                    <p className="text-xs text-muted-foreground">Срок: {fmtDate(tax.deadline)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{fmt(tax.amount)}</p>
-                    <span className={`text-xs ${tax.paid ? "text-success" : "text-warning"}`}>
-                      {tax.paid ? "Оплачен" : "К оплате"}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
-              <p className="text-xs text-muted-foreground">
-                <strong>ИИ-подсказка:</strong> С 01.01.2026 порог НДС снижен до 40 млн ₸. При текущей выручке компания обязана уплачивать НДС ежеквартально.
-              </p>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="text-muted-foreground border-b">
+                <tr>
+                  <th className="text-left py-2">Счёт</th>
+                  <th className="text-left py-2">Наименование</th>
+                  <th className="text-right py-2">Сальдо нач. (Дт)</th>
+                  <th className="text-right py-2">Оборот Дт</th>
+                  <th className="text-right py-2">Оборот Кт</th>
+                  <th className="text-right py-2">Сальдо кон. (Дт)</th>
+                  <th className="text-right py-2">Сальдо кон. (Кт)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {importantAccounts.map((a) => (
+                  <tr key={a.id} className="border-b last:border-0 hover:bg-muted/20">
+                    <td className="py-1.5 font-mono text-[10px]">{a.code}</td>
+                    <td className="py-1.5">{a.name}</td>
+                    <td className="py-1.5 text-right tabular-nums">{a.startDebit > 0 ? fmtMoney.format(a.startDebit) : ""}</td>
+                    <td className="py-1.5 text-right tabular-nums">{a.turnoverDebit > 0 ? fmtMoney.format(a.turnoverDebit) : ""}</td>
+                    <td className="py-1.5 text-right tabular-nums">{a.turnoverCredit > 0 ? fmtMoney.format(a.turnoverCredit) : ""}</td>
+                    <td className="py-1.5 text-right tabular-nums">{a.endDebit > 0 ? fmtMoney.format(a.endDebit) : ""}</td>
+                    <td className="py-1.5 text-right tabular-nums text-muted-foreground">{a.endCredit > 0 ? fmtMoney.format(a.endCredit) : ""}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
